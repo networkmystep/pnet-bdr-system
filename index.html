@@ -48,6 +48,8 @@
         .btn-success:hover { background-color: #218838; }
         .btn-secondary { background-color: #6c757d; padding: 5px 15px; margin-top: 10px;}
         .btn-secondary:hover { background-color: #5a6268; }
+        .btn-danger { background-color: #dc3545; }
+        .btn-danger:hover { background-color: #c82333; }
         
         .report-screen { display: none; }
         
@@ -74,11 +76,17 @@
         textarea { width: 100%; height: 120px; padding: 5px; border: 1px solid #ccc; font-family: inherit; resize: vertical; box-sizing: border-box;}
         
         .header-text { text-align: center; font-weight: bold; margin-bottom: 30px; line-height: 1.5;}
-        .signature-section { margin-top: 50px; }
+        
+        /* TANDATANGAN DI TENGAH */
+        .signature-section { margin-top: 60px; text-align: center; }
 
         /* Print Styles */
         @media print {
-            body { background-color: white; padding: 0; }
+            /* BUANG TIMESTAMP DAN LINK URL DI ATAS/BAWAH */
+            @page { margin: 0; } 
+            
+            /* Tetapkan margin supaya isi kandungan tidak terlalu rapat ke tepi kertas */
+            body { background-color: white; padding: 2.5cm !important; }
             .container { box-shadow: none; padding: 0; max-width: 100%; }
             .no-print { display: none !important; }
             
@@ -121,8 +129,9 @@
                 </select>
             </div>
             <div>
-                <button class="btn btn-success" onclick="saveRecord()">Simpan Rekod</button>
-                <button class="btn" onclick="printReport()">Cetak / Simpan PDF</button>
+                <button class="btn btn-danger" onclick="kosongkanBorang()">Kosongkan Borang</button>
+                <button class="btn btn-success" onclick="saveRecord()">Simpan</button>
+                <button class="btn" onclick="printReport()">Cetak PDF</button>
             </div>
         </div>
 
@@ -159,7 +168,6 @@
                 </tr>
             </thead>
             <tbody id="tbodyTugas">
-                <!-- Baris 1 (Default) -->
                 <tr>
                     <td class="row-number" style="text-align: center;">1</td>
                     <td>
@@ -172,12 +180,11 @@
             </tbody>
         </table>
         
-        <!-- Butang Tambah Baris (Akan hilang waktu print) -->
         <button class="btn btn-secondary no-print" onclick="tambahBaris()">+ Tambah Tugas</button>
 
         <div class="signature-section">
             <p>DISAHKAN OLEH:</p>
-            <br><br>
+            <br><br><br>
             <p>………………………………………………….<br>
             Setiausaha/Pengarah Bahagian</p>
         </div>
@@ -187,7 +194,6 @@
 <script>
     let bilCount = 1;
 
-    // 1. Handle Login
     function login() {
         const emailInput = document.getElementById('userEmail').value;
         if (emailInput.includes('@')) {
@@ -199,7 +205,6 @@
         }
     }
 
-    // 2. Fungsi Tambah Baris Baharu
     function tambahBaris(tugasValue = '', outputValue = '') {
         bilCount++;
         const tbody = document.getElementById('tbodyTugas');
@@ -217,24 +222,24 @@
         tbody.appendChild(tr);
     }
 
-    // 3. Simpan Rekod (Menyokong Berbilang Baris)
     function saveRecord() {
         const dateKey = document.getElementById('mingguDate').value.trim();
         if (!dateKey) {
-            alert("Sila isikan ruangan 'MULAI' terlebih dahulu sebagai rujukan minggu.");
+            alert("Sila isikan ruangan 'MULAI' terlebih dahulu sebagai rujukan minggu sebelum menyimpan.");
             return;
         }
 
-        // Kumpul semua tugasan dari table
         const tugasanArray = [];
         const tugasanElements = document.getElementsByClassName('tugas-text');
         const outputElements = document.getElementsByClassName('output-text');
         
         for (let i = 0; i < tugasanElements.length; i++) {
-            tugasanArray.push({
-                tugas: tugasanElements[i].value,
-                output: outputElements[i].value
-            });
+            if(tugasanElements[i].value.trim() !== '' || outputElements[i].value.trim() !== '') {
+                tugasanArray.push({
+                    tugas: tugasanElements[i].value,
+                    output: outputElements[i].value
+                });
+            }
         }
 
         const reportData = {
@@ -250,7 +255,6 @@
         document.getElementById('historyDropdown').value = dateKey;
     }
 
-    // 4. Update Dropdown Rekod Lama
     function updateDropdown() {
         const dropdown = document.getElementById('historyDropdown');
         dropdown.innerHTML = '<option value="">-- Pilih Minggu --</option>';
@@ -267,7 +271,6 @@
         }
     }
 
-    // 5. Load Rekod (Memaparkan Semula Semua Baris Yang Disimpan)
     function loadRecord() {
         const selectedDate = document.getElementById('historyDropdown').value;
         if (!selectedDate) return; 
@@ -279,24 +282,38 @@
             document.getElementById('nama').value = savedData.nama || '';
             document.getElementById('jawatan').value = savedData.jawatan || '';
             
-            // Kosongkan table terlebih dahulu
             const tbody = document.getElementById('tbodyTugas');
             tbody.innerHTML = '';
             bilCount = 0;
 
-            // Masukkan semula baris berdasarkan data yang disimpan
             if(savedData.tugasanList && savedData.tugasanList.length > 0) {
                 savedData.tugasanList.forEach(item => {
                     tambahBaris(item.tugas, item.output);
                 });
             } else {
-                // Jika tiada tugasan (fallback), wujudkan sekurang-kurangnya 1 baris
                 tambahBaris(); 
             }
         }
     }
 
-    // 6. Fungsi Cetak
+    // Fungsi baharu untuk mengosongkan borang (Reset)
+    function kosongkanBorang() {
+        if(confirm("Borang akan dikosongkan untuk minggu baharu. Teruskan?")) {
+            // Kita padam Tarikh dan dropdown
+            document.getElementById('mingguDate').value = '';
+            document.getElementById('historyDropdown').value = '';
+            
+            // Kita reset table jadikan 1 baris kosong semula
+            const tbody = document.getElementById('tbodyTugas');
+            tbody.innerHTML = '';
+            bilCount = 0;
+            tambahBaris();
+            
+            // Nota: Input Nama, Bahagian dan Jawatan TIDAK dipadam. 
+            // Sengaja ditinggalkan supaya pengguna tak perlu ulang menaip setiap kali buat laporan baharu.
+        }
+    }
+
     function printReport() {
         const dateKey = document.getElementById('mingguDate').value.trim();
         const originalTitle = document.title;

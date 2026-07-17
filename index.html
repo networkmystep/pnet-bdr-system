@@ -87,6 +87,10 @@
                 resize: none; 
                 overflow: hidden;
             }
+            /* Menyembunyikan placeholder ketika print jika ruangan dibiarkan kosong */
+            input::placeholder, textarea::placeholder {
+                color: transparent;
+            }
             .input-group label { min-width: auto; margin-right: 5px;}
             th { background-color: transparent !important; }
         }
@@ -130,19 +134,19 @@
 
         <div class="input-group">
             <label>MULAI:</label>
-            <input type="text" id="mingguDate" value="21 April 2026 DAN 23 April 2026" placeholder="Cth: 21 April 2026 DAN 23 April 2026">
+            <input type="text" id="mingguDate" value="" placeholder="Cth: 21 April 2026 HINGGA 23 April 2026">
         </div>
         <div class="input-group">
             <label>BAHAGIAN:</label>
-            <input type="text" id="bahagian" value="Bahagian Pengurusan Maklumat">
+            <input type="text" id="bahagian" value="" placeholder="Nama Bahagian">
         </div>
         <div class="input-group">
             <label>NAMA:</label>
-            <input type="text" id="nama" value="AHMAD FAEZ BIN ROSLEE">
+            <input type="text" id="nama" value="" placeholder="Nama Penuh Pegawai">
         </div>
         <div class="input-group">
             <label>JAWATAN & GRED:</label>
-            <input type="text" id="jawatan" value="Personel MyStep">
+            <input type="text" id="jawatan" value="" placeholder="Contoh: Personel MyStep / F41">
         </div>
 
         <table>
@@ -157,15 +161,10 @@
                 <tr>
                     <td style="text-align: center;">1</td>
                     <td>
-                        <textarea id="tugas">Menghadiri Sesi Coaching serta Peperiksaan Amali bagi pensijilan Cisco Certified Network Associate (CCNA) 2026 secara dalam talian bermula dari 20 April hingga 24 April 2026. Sesi ini melibatkan sesi pembelajaran intensif, latihan makmal, dan persediaan teknikal bagi menduduki ujian kelayakan yang ditetapkan.</textarea>
+                        <textarea id="tugas" placeholder="Sila masukkan senarai tugas anda di sini..."></textarea>
                     </td>
                     <td>
-                        <textarea id="output">Selesai dilaksanakan sepenuhnya bagi tempoh lima hari.
-Selesai dilaksanakan dengan pencapaian prestasi seperti berikut:
-100% bagi Peperiksaan Kemahiran (Skills Exams).
-92% bagi Peperiksaan Akhir (Final Exam).
-90.5% bagi purata Peperiksaan Kumpulan Modul (Module Group Exams).
-93.8% Gred Keseluruhan Kursus (Class Grades).</textarea>
+                        <textarea id="output" placeholder="Sila masukkan output bagi tugas tersebut..."></textarea>
                     </td>
                 </tr>
             </tbody>
@@ -243,11 +242,11 @@ Selesai dilaksanakan dengan pencapaian prestasi seperti berikut:
         const savedData = JSON.parse(localStorage.getItem('BDR_' + selectedDate));
         if (savedData) {
             document.getElementById('mingguDate').value = selectedDate;
-            document.getElementById('bahagian').value = savedData.bahagian;
-            document.getElementById('nama').value = savedData.nama;
-            document.getElementById('jawatan').value = savedData.jawatan;
-            document.getElementById('tugas').value = savedData.tugas;
-            document.getElementById('output').value = savedData.output;
+            document.getElementById('bahagian').value = savedData.bahagian || '';
+            document.getElementById('nama').value = savedData.nama || '';
+            document.getElementById('jawatan').value = savedData.jawatan || '';
+            document.getElementById('tugas').value = savedData.tugas || '';
+            document.getElementById('output').value = savedData.output || '';
         }
     }
 
@@ -260,6 +259,8 @@ Selesai dilaksanakan dengan pencapaian prestasi seperti berikut:
             // Replace spaces and special characters with underscores for a clean filename
             const safeName = dateKey.replace(/[^a-zA-Z0-9]/g, '_');
             document.title = "Laporan_BDR_" + safeName;
+        } else {
+            document.title = "Laporan_BDR_Mingguan";
         }
         
         window.print();

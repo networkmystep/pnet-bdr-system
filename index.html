@@ -46,6 +46,8 @@
         .btn:hover { background-color: #024ea4; }
         .btn-success { background-color: #28a745; }
         .btn-success:hover { background-color: #218838; }
+        .btn-secondary { background-color: #6c757d; padding: 5px 15px; margin-top: 10px;}
+        .btn-secondary:hover { background-color: #5a6268; }
         
         .report-screen { display: none; }
         
@@ -69,7 +71,7 @@
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { border: 1px solid black; padding: 10px; vertical-align: top; }
         th { background-color: #f0f0f0; }
-        textarea { width: 100%; height: 180px; padding: 5px; border: 1px solid #ccc; font-family: inherit; resize: vertical; }
+        textarea { width: 100%; height: 120px; padding: 5px; border: 1px solid #ccc; font-family: inherit; resize: vertical; box-sizing: border-box;}
         
         .header-text { text-align: center; font-weight: bold; margin-bottom: 30px; line-height: 1.5;}
         .signature-section { margin-top: 50px; }
@@ -87,7 +89,6 @@
                 resize: none; 
                 overflow: hidden;
             }
-            /* Menyembunyikan placeholder ketika print jika ruangan dibiarkan kosong */
             input::placeholder, textarea::placeholder {
                 color: transparent;
             }
@@ -111,7 +112,7 @@
     <!-- Report Template Screen -->
     <div id="reportScreen" class="report-screen">
         
-        <!-- Control Panel (Hidden during Print) -->
+        <!-- Control Panel -->
         <div class="control-panel no-print">
             <div>
                 <strong>Rekod Lepas:</strong>
@@ -134,19 +135,19 @@
 
         <div class="input-group">
             <label>MULAI:</label>
-            <input type="text" id="mingguDate" value="" placeholder="Cth: 21 April 2026 HINGGA 23 April 2026">
+            <input type="text" id="mingguDate" placeholder="Cth: 21 April 2026 HINGGA 23 April 2026">
         </div>
         <div class="input-group">
             <label>BAHAGIAN:</label>
-            <input type="text" id="bahagian" value="" placeholder="Nama Bahagian">
+            <input type="text" id="bahagian" placeholder="Nama Bahagian">
         </div>
         <div class="input-group">
             <label>NAMA:</label>
-            <input type="text" id="nama" value="" placeholder="Nama Penuh Pegawai">
+            <input type="text" id="nama" placeholder="Nama Penuh Pegawai">
         </div>
         <div class="input-group">
             <label>JAWATAN & GRED:</label>
-            <input type="text" id="jawatan" value="" placeholder="Contoh: Personel MyStep / F41">
+            <input type="text" id="jawatan" placeholder="Contoh: Personel MyStep / F41">
         </div>
 
         <table>
@@ -157,18 +158,22 @@
                     <th style="width: 50%;">OUTPUT</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="tbodyTugas">
+                <!-- Baris 1 (Default) -->
                 <tr>
-                    <td style="text-align: center;">1</td>
+                    <td class="row-number" style="text-align: center;">1</td>
                     <td>
-                        <textarea id="tugas" placeholder="Sila masukkan senarai tugas anda di sini..."></textarea>
+                        <textarea class="tugas-text" placeholder="Sila masukkan senarai tugas anda di sini..."></textarea>
                     </td>
                     <td>
-                        <textarea id="output" placeholder="Sila masukkan output bagi tugas tersebut..."></textarea>
+                        <textarea class="output-text" placeholder="Sila masukkan output bagi tugas tersebut..."></textarea>
                     </td>
                 </tr>
             </tbody>
         </table>
+        
+        <!-- Butang Tambah Baris (Akan hilang waktu print) -->
+        <button class="btn btn-secondary no-print" onclick="tambahBaris()">+ Tambah Tugas</button>
 
         <div class="signature-section">
             <p>DISAHKAN OLEH:</p>
@@ -180,6 +185,8 @@
 </div>
 
 <script>
+    let bilCount = 1;
+
     // 1. Handle Login
     function login() {
         const emailInput = document.getElementById('userEmail').value;
@@ -192,7 +199,25 @@
         }
     }
 
-    // 2. Save the current week's record to browser memory
+    // 2. Fungsi Tambah Baris Baharu
+    function tambahBaris(tugasValue = '', outputValue = '') {
+        bilCount++;
+        const tbody = document.getElementById('tbodyTugas');
+        const tr = document.createElement('tr');
+        
+        tr.innerHTML = `
+            <td class="row-number" style="text-align: center;">${bilCount}</td>
+            <td>
+                <textarea class="tugas-text" placeholder="Sila masukkan senarai tugas anda di sini...">${tugasValue}</textarea>
+            </td>
+            <td>
+                <textarea class="output-text" placeholder="Sila masukkan output bagi tugas tersebut...">${outputValue}</textarea>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    }
+
+    // 3. Simpan Rekod (Menyokong Berbilang Baris)
     function saveRecord() {
         const dateKey = document.getElementById('mingguDate').value.trim();
         if (!dateKey) {
@@ -200,26 +225,34 @@
             return;
         }
 
+        // Kumpul semua tugasan dari table
+        const tugasanArray = [];
+        const tugasanElements = document.getElementsByClassName('tugas-text');
+        const outputElements = document.getElementsByClassName('output-text');
+        
+        for (let i = 0; i < tugasanElements.length; i++) {
+            tugasanArray.push({
+                tugas: tugasanElements[i].value,
+                output: outputElements[i].value
+            });
+        }
+
         const reportData = {
             bahagian: document.getElementById('bahagian').value,
             nama: document.getElementById('nama').value,
             jawatan: document.getElementById('jawatan').value,
-            tugas: document.getElementById('tugas').value,
-            output: document.getElementById('output').value
+            tugasanList: tugasanArray
         };
 
         localStorage.setItem('BDR_' + dateKey, JSON.stringify(reportData));
-        alert("Rekod untuk minggu '" + dateKey + "' berjaya disimpan di dalam browser!");
+        alert("Rekod untuk minggu '" + dateKey + "' berjaya disimpan!");
         updateDropdown();
-        
-        // Select the newly saved item in the dropdown
         document.getElementById('historyDropdown').value = dateKey;
     }
 
-    // 3. Update the dropdown list with saved records
+    // 4. Update Dropdown Rekod Lama
     function updateDropdown() {
         const dropdown = document.getElementById('historyDropdown');
-        // Clear existing options except the first one
         dropdown.innerHTML = '<option value="">-- Pilih Minggu --</option>';
         
         for (let i = 0; i < localStorage.length; i++) {
@@ -234,10 +267,10 @@
         }
     }
 
-    // 4. Load a selected record into the form
+    // 5. Load Rekod (Memaparkan Semula Semua Baris Yang Disimpan)
     function loadRecord() {
         const selectedDate = document.getElementById('historyDropdown').value;
-        if (!selectedDate) return; // Do nothing if default option is selected
+        if (!selectedDate) return; 
 
         const savedData = JSON.parse(localStorage.getItem('BDR_' + selectedDate));
         if (savedData) {
@@ -245,18 +278,30 @@
             document.getElementById('bahagian').value = savedData.bahagian || '';
             document.getElementById('nama').value = savedData.nama || '';
             document.getElementById('jawatan').value = savedData.jawatan || '';
-            document.getElementById('tugas').value = savedData.tugas || '';
-            document.getElementById('output').value = savedData.output || '';
+            
+            // Kosongkan table terlebih dahulu
+            const tbody = document.getElementById('tbodyTugas');
+            tbody.innerHTML = '';
+            bilCount = 0;
+
+            // Masukkan semula baris berdasarkan data yang disimpan
+            if(savedData.tugasanList && savedData.tugasanList.length > 0) {
+                savedData.tugasanList.forEach(item => {
+                    tambahBaris(item.tugas, item.output);
+                });
+            } else {
+                // Jika tiada tugasan (fallback), wujudkan sekurang-kurangnya 1 baris
+                tambahBaris(); 
+            }
         }
     }
 
-    // 5. Smart Print - Changes document title so PDF saves with a clear name
+    // 6. Fungsi Cetak
     function printReport() {
         const dateKey = document.getElementById('mingguDate').value.trim();
         const originalTitle = document.title;
         
         if(dateKey) {
-            // Replace spaces and special characters with underscores for a clean filename
             const safeName = dateKey.replace(/[^a-zA-Z0-9]/g, '_');
             document.title = "Laporan_BDR_" + safeName;
         } else {
@@ -264,8 +309,6 @@
         }
         
         window.print();
-        
-        // Revert title back to normal after print dialog closes
         document.title = originalTitle;
     }
 </script>

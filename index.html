@@ -142,8 +142,21 @@
 
         /* --- STYLES UNTUK CETAK (PRINT) - KEMBALI RASMI & BERSIH --- */
         @media print {
-            @page { size: A4; margin: 2cm; } 
-            body { background-color: white; padding: 0 !important; font-family: Arial, sans-serif; color: black; }
+            /* 1. Tetapkan saiz A4 dan buang margin kertas sepenuhnya untuk padam header/footer */
+            @page { 
+                size: A4; 
+                margin: 0; 
+            } 
+            
+            /* 2. Gantikan margin tadi dengan padding pada body supaya isi kandungan nampak kemas */
+            body { 
+                background-color: white; 
+                padding: 2cm !important; 
+                font-family: Arial, sans-serif; 
+                color: black; 
+                box-sizing: border-box;
+            }
+            
             .container { box-shadow: none; padding: 0; max-width: 100%; border-radius: 0; }
             .no-print { display: none !important; }
             
@@ -154,7 +167,6 @@
             input::placeholder, textarea::placeholder { color: transparent; }
             .input-group label { min-width: auto; margin-right: 10px;}
             
-            /* Tetapan Font untuk Tajuk semasa Print */
             .lampiran-text { color: black; }
             .header-text { color: black; }
 
@@ -164,7 +176,6 @@
             
             tr { page-break-inside: avoid; break-inside: avoid; }
             
-            /* Sembunyikan Lajur TINDAKAN waktu print */
             .col-tindakan { display: none !important; }
         }
     </style>
@@ -195,7 +206,6 @@
             </div>
         </div>
 
-        <!-- PERUBAHAN DI SINI: LAMPIRAN B KINI BERADA DI KANAN -->
         <div class="lampiran-text">
             LAMPIRAN B
         </div>

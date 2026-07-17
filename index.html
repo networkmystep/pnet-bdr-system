@@ -5,30 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Laporan BDR</title>
     
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-        /* --- STYLES UNTUK SKRIN --- */
+        /* --- STYLES UNTUK SKRIN (PREMIUM & BERWARNA) --- */
         :root {
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
             --success: #10b981;
             --success-hover: #059669;
             --danger: #ef4444;
             --danger-hover: #dc2626;
             --warning: #f59e0b;
-            --warning-hover: #d97706;
-            --bg-color: #f8fafc;
+            --bg-body: #f1f5f9;
             --surface: #ffffff;
-            --border: #e2e8f0;
+            --border: #cbd5e1;
             --text-main: #0f172a;
-            --text-muted: #64748b;
+            --table-header: #eff6ff; /* Warna biru lembut untuk header jadual */
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
+            background-color: var(--bg-body);
             color: var(--text-main);
             margin: 0;
             padding: 40px 20px;
@@ -36,87 +37,99 @@
         }
         
         .container {
-            max-width: 850px;
+            max-width: 900px;
             margin: 0 auto;
             background: var(--surface);
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            padding: 50px;
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            transition: all 0.3s ease;
         }
 
-        .login-screen { text-align: center; padding: 60px 20px; }
-        .login-screen h2 { color: var(--primary); margin-bottom: 10px; }
-        .login-screen input {
-            padding: 12px 15px; width: 100%; max-width: 320px; margin-bottom: 20px;
-            border: 1px solid var(--border); border-radius: 8px; font-size: 15px;
+        /* --- Input Styles --- */
+        .header-text { text-align: center; font-weight: 700; margin-bottom: 40px; line-height: 1.6; color: #1e293b; font-size: 16px;}
+        .input-group { margin-bottom: 18px; display: flex; align-items: center; }
+        .input-group label { font-weight: 600; margin-right: 15px; min-width: 150px; color: #334155; }
+        .input-group input { 
+            flex-grow: 1; padding: 12px 15px; border: 1px solid var(--border); 
+            border-radius: 8px; font-family: inherit; font-size: 14px;
+            background-color: #f8fafc; transition: all 0.3s ease;
         }
-        .login-screen input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        .input-group input:focus, textarea:focus { 
+            outline: none; border-color: var(--primary); 
+            background-color: #ffffff;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15); 
+        }
 
+        /* --- Table Styles Premium --- */
+        table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 30px; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+        th, td { border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); padding: 15px; vertical-align: top; }
+        th:last-child, td:last-child { border-right: none; }
+        tr:last-child td { border-bottom: none; }
+        
+        th { background-color: var(--table-header); font-weight: 700; color: #1e3a8a; text-align: left; }
+        
+        textarea { 
+            width: 100%; height: 110px; padding: 12px; border: 1px solid #e2e8f0; 
+            border-radius: 8px; font-family: inherit; font-size: 14px;
+            resize: vertical; box-sizing: border-box; background-color: #f8fafc;
+            transition: all 0.3s ease;
+        }
+
+        /* --- Animasi Baris --- */
+        @keyframes slideInFade {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .row-animate { animation: slideInFade 0.4s ease forwards; }
+
+        /* --- Butang Styles --- */
         .btn {
             padding: 10px 20px; background-color: var(--primary); color: white;
-            border: none; border-radius: 6px; cursor: pointer; font-size: 14px;
-            font-weight: 500; margin: 4px;
+            border: none; border-radius: 8px; cursor: pointer; font-size: 14px;
+            font-weight: 600; margin: 4px; transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .btn:hover { background-color: var(--primary-hover); }
+        .btn:hover { background-color: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.15); }
+        .btn:active { transform: translateY(0); }
         .btn-success { background-color: var(--success); }
         .btn-success:hover { background-color: var(--success-hover); }
-        .btn-warning { background-color: var(--warning); color: white;}
-        .btn-warning:hover { background-color: var(--warning-hover); }
         .btn-danger { background-color: var(--danger); }
         .btn-danger:hover { background-color: var(--danger-hover); }
-        .btn-secondary { background-color: var(--text-muted); padding: 8px 16px; margin-top: 15px;}
-        .btn-secondary:hover { background-color: #475569; }
+        .btn-warning { background-color: var(--warning); color: white;}
+        .btn-secondary { background-color: #64748b; padding: 10px 20px; margin-top: 20px;}
         
-        .report-screen { display: none; }
-        
+        /* Butang Padam Kecil dalam Jadual */
+        .btn-delete-row {
+            background-color: #fee2e2; color: #ef4444; border: none; border-radius: 6px;
+            width: 32px; height: 32px; font-size: 14px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s ease; margin: 0 auto;
+        }
+        .btn-delete-row:hover { background-color: #ef4444; color: white; transform: scale(1.1); }
+
+        /* --- Control Panel --- */
         .control-panel {
-            background-color: #f1f5f9; padding: 20px; border-radius: 10px;
-            border: 1px solid var(--border); margin-bottom: 30px; display: flex;
+            background: linear-gradient(to right, #f8fafc, #f1f5f9); padding: 25px; border-radius: 12px;
+            border: 1px solid var(--border); margin-bottom: 40px; display: flex;
             justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;
         }
         .control-panel select { 
-            padding: 10px; border-radius: 6px; border: 1px solid var(--border);
-            font-family: inherit; margin-right: 10px; min-width: 180px;
-        }
-        
-        .header-text { text-align: center; font-weight: 700; margin-bottom: 40px; line-height: 1.6; color: #1e293b; }
-        
-        .input-group { margin-bottom: 15px; display: flex; align-items: center; }
-        .input-group label { font-weight: 600; margin-right: 15px; min-width: 150px; color: var(--text-main); }
-        .input-group input { 
-            flex-grow: 1; padding: 10px 12px; border: 1px solid var(--border); 
-            border-radius: 6px; font-family: inherit; font-size: 14px;
-        }
-        .input-group input:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 25px; border-radius: 8px; overflow: hidden; }
-        th, td { border: 1px solid var(--border); padding: 12px; vertical-align: top; }
-        th { background-color: #f8fafc; font-weight: 600; color: var(--text-main); }
-        textarea { 
-            width: 100%; height: 100px; padding: 10px; border: 1px solid var(--border); 
-            border-radius: 6px; font-family: inherit; font-size: 14px;
-            resize: vertical; box-sizing: border-box; background-color: #fcfcfc;
-        }
-        
-        .signature-section { 
-            margin-top: 60px; text-align: center; font-weight: 500;
-            page-break-inside: avoid; break-inside: avoid;
+            padding: 12px; border-radius: 8px; border: 1px solid var(--border);
+            font-family: inherit; margin-right: 10px; min-width: 200px;
+            background-color: white; font-weight: 500;
         }
 
-        /* --- STYLES UNTUK CETAK (PRINT) --- */
+        .login-screen { text-align: center; padding: 80px 20px; }
+        .login-screen input { padding: 15px; width: 100%; max-width: 350px; margin-bottom: 25px; border-radius: 10px; border: 1px solid var(--border); font-size: 16px;}
+        .report-screen { display: none; }
+        .signature-section { margin-top: 70px; text-align: center; font-weight: 500; page-break-inside: avoid; }
+
+        /* --- STYLES UNTUK CETAK (PRINT) - KEMBALI RASMI & BERSIH --- */
         @media print {
-            /* PENGUBAHSUAIAN UTAMA: Margin A4 sebenar digunakan (2cm atas/bawah/kiri/kanan) */
-            @page { 
-                size: A4; 
-                margin: 2cm; 
-            } 
-            body { 
-                background-color: white; 
-                padding: 0 !important; /* Buang padding palsu */
-                font-family: Arial, sans-serif; 
-                color: black;
-            }
-            .container { box-shadow: none; padding: 0; max-width: 100%; }
+            @page { size: A4; margin: 2cm; } 
+            body { background-color: white; padding: 0 !important; font-family: Arial, sans-serif; color: black; }
+            .container { box-shadow: none; padding: 0; max-width: 100%; border-radius: 0; }
             .no-print { display: none !important; }
             
             input, textarea { 
@@ -125,10 +138,15 @@
             }
             input::placeholder, textarea::placeholder { color: transparent; }
             .input-group label { min-width: auto; margin-right: 10px;}
-            th, td { border: 1px solid black; }
-            th { background-color: transparent !important; }
+            
+            table { border: 1px solid black; border-radius: 0; border-collapse: collapse; margin-top: 15px; }
+            th, td { border: 1px solid black; padding: 10px; }
+            th { background-color: transparent !important; color: black; font-weight: bold; }
             
             tr { page-break-inside: avoid; break-inside: avoid; }
+            
+            /* Sembunyikan Lajur TINDAKAN waktu print */
+            .col-tindakan { display: none !important; }
         }
     </style>
 </head>
@@ -136,11 +154,11 @@
 
 <div class="container">
     <div id="loginScreen" class="login-screen no-print">
-        <h2>Sistem Laporan BDR</h2>
-        <p style="color: #64748b; margin-bottom: 30px;">Sila log masuk menggunakan emel rasmi anda.</p>
+        <h2 style="color: var(--primary); font-size: 28px; margin-bottom: 10px;">Sistem Laporan BDR</h2>
+        <p style="color: #64748b; margin-bottom: 40px; font-size: 16px;">Sila log masuk menggunakan emel rasmi anda.</p>
         <input type="email" id="userEmail" placeholder="emel@kkm.gov.my" required>
         <br>
-        <button class="btn" onclick="login()">Log Masuk Semasa</button>
+        <button class="btn" style="padding: 12px 30px; font-size: 16px;" onclick="login()">Log Masuk</button>
     </div>
 
     <div id="reportScreen" class="report-screen">
@@ -149,7 +167,7 @@
                 <select id="historyDropdown" onchange="loadRecord()">
                     <option value="">-- Pilih Rekod Lepas --</option>
                 </select>
-                <button class="btn btn-danger" style="padding: 10px 15px;" onclick="padamRekod()">Padam</button>
+                <button class="btn btn-danger" style="padding: 12px 18px;" onclick="padamRekodLama()" title="Padam Rekod Ini">Padam</button>
             </div>
             <div>
                 <button class="btn btn-warning" onclick="kosongkanBorang()">Kosongkan</button>
@@ -171,11 +189,11 @@
         </div>
         <div class="input-group">
             <label>BAHAGIAN:</label>
-            <input type="text" id="bahagian" placeholder="Nama Bahagian">
+            <input type="text" id="bahagian" placeholder="Sila masukkan nama bahagian...">
         </div>
         <div class="input-group">
             <label>NAMA:</label>
-            <input type="text" id="nama" placeholder="Nama Penuh Pegawai">
+            <input type="text" id="nama" placeholder="Sila masukkan nama penuh pegawai...">
         </div>
         <div class="input-group">
             <label>JAWATAN & GRED:</label>
@@ -187,15 +205,12 @@
                 <tr>
                     <th style="width: 5%; text-align: center;">BIL.</th>
                     <th style="width: 45%;">SENARAI TUGAS</th>
-                    <th style="width: 50%;">OUTPUT</th>
+                    <th style="width: 45%;">OUTPUT</th>
+                    <th style="width: 5%; text-align: center;" class="no-print col-tindakan">TINDAKAN</th>
                 </tr>
             </thead>
             <tbody id="tbodyTugas">
-                <tr>
-                    <td class="row-number" style="text-align: center; padding-top: 15px;">1</td>
-                    <td><textarea class="tugas-text" placeholder="Masukkan ringkasan tugas..."></textarea></td>
-                    <td><textarea class="output-text" placeholder="Masukkan hasil / output tugas..."></textarea></td>
-                </tr>
+                <!-- Baris akan dijana melalui JavaScript -->
             </tbody>
         </table>
         
@@ -211,31 +226,68 @@
 </div>
 
 <script>
-    let bilCount = 1;
-
     function login() {
         const emailInput = document.getElementById('userEmail').value;
         if (emailInput.includes('@')) {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('reportScreen').style.display = 'block';
             updateDropdown();
+            // Masukkan baris pertama jika kosong
+            if(document.getElementById('tbodyTugas').children.length === 0) {
+                tambahBaris();
+            }
         } else {
-            Swal.fire({ icon: 'error', title: 'Akses Ditolak', text: 'Sila masukkan format emel yang sah (mesti mempunyai @).', confirmButtonColor: '#2563eb' });
+            Swal.fire({ icon: 'error', title: 'Akses Ditolak', text: 'Sila masukkan format emel yang sah (mesti mempunyai @).', confirmButtonColor: '#3b82f6' });
         }
     }
 
+    // FUNGSI TAMBAH BARIS DENGAN ANIMASI
     function tambahBaris(tugasValue = '', outputValue = '') {
-        bilCount++;
         const tbody = document.getElementById('tbodyTugas');
         const tr = document.createElement('tr');
+        tr.className = 'row-animate'; 
+        
         tr.innerHTML = `
-            <td class="row-number" style="text-align: center; padding-top: 15px;">${bilCount}</td>
+            <td class="row-number" style="text-align: center; padding-top: 20px; font-weight: bold; color: #64748b;"></td>
             <td><textarea class="tugas-text" placeholder="Masukkan ringkasan tugas...">${tugasValue}</textarea></td>
             <td><textarea class="output-text" placeholder="Masukkan hasil / output tugas...">${outputValue}</textarea></td>
+            <td class="no-print col-tindakan" style="text-align: center; vertical-align: middle;">
+                <button class="btn-delete-row" onclick="padamBaris(this)" title="Padam Tugasan Ini">✖</button>
+            </td>
         `;
         tbody.appendChild(tr);
+        kemaskiniNomborBilangan();
     }
 
+    // FUNGSI PADAM BARIS TERTENTU DENGAN ANIMASI & PENGIRAAN SEMULA
+    function padamBaris(btnElement) {
+        const row = btnElement.closest('tr');
+        
+        // Animasi hilang
+        row.style.transition = 'all 0.3s ease';
+        row.style.opacity = '0';
+        row.style.transform = 'translateX(-30px)';
+        
+        setTimeout(() => {
+            row.remove();
+            kemaskiniNomborBilangan(); // Kira semula nombor 1, 2, 3...
+            
+            // Pastikan sentiasa ada sekurang-kurangnya 1 baris tinggal
+            if (document.getElementById('tbodyTugas').children.length === 0) {
+                tambahBaris();
+            }
+        }, 300);
+    }
+
+    // FUNGSI KIRA SEMULA NOMBOR (BIL.)
+    function kemaskiniNomborBilangan() {
+        const rows = document.querySelectorAll('#tbodyTugas tr');
+        rows.forEach((row, index) => {
+            row.querySelector('.row-number').innerText = index + 1;
+        });
+    }
+
+    // FUNGSI SIMPAN
     function saveRecord() {
         const dateKey = document.getElementById('mingguDate').value.trim();
         if (!dateKey) {
@@ -261,6 +313,7 @@
         Swal.fire({ icon: 'success', title: 'Berjaya Disimpan!', text: `Rekod untuk '${dateKey}' telah disimpan.`, confirmButtonColor: '#10b981', timer: 2000, showConfirmButton: false });
     }
 
+    // FUNGSI DROPDOWN
     function updateDropdown() {
         const dropdown = document.getElementById('historyDropdown');
         dropdown.innerHTML = '<option value="">-- Pilih Rekod Lepas --</option>';
@@ -275,6 +328,7 @@
         }
     }
 
+    // FUNGSI LOAD
     function loadRecord() {
         const selectedDate = document.getElementById('historyDropdown').value;
         if (!selectedDate) return; 
@@ -286,8 +340,7 @@
             document.getElementById('nama').value = savedData.nama || '';
             document.getElementById('jawatan').value = savedData.jawatan || '';
             
-            const tbody = document.getElementById('tbodyTugas');
-            tbody.innerHTML = ''; bilCount = 0;
+            document.getElementById('tbodyTugas').innerHTML = '';
 
             if(savedData.tugasanList && savedData.tugasanList.length > 0) {
                 savedData.tugasanList.forEach(item => { tambahBaris(item.tugas, item.output); });
@@ -295,41 +348,45 @@
         }
     }
 
-    function padamRekod() {
+    // FUNGSI PADAM REKOD LAMA DI LOCALSTORAGE
+    function padamRekodLama() {
         const selectedDate = document.getElementById('historyDropdown').value;
         if (!selectedDate) {
-            Swal.fire({ icon: 'info', title: 'Pilih Rekod', text: "Sila pilih minggu terlebih dahulu.", confirmButtonColor: '#3085d6' });
+            Swal.fire({ icon: 'info', title: 'Pilih Rekod', text: "Sila pilih minggu terlebih dahulu di ruangan 'Rekod Lepas'.", confirmButtonColor: '#3b82f6' });
             return;
         }
 
         Swal.fire({
-            title: 'Adakah anda pasti?', text: `Data untuk minggu '${selectedDate}' akan dipadam.`, icon: 'warning',
+            title: 'Padam Rekod Ini?', text: `Data untuk minggu '${selectedDate}' akan dipadam secara kekal dari peranti ini.`, icon: 'warning',
             showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#64748b', confirmButtonText: 'Ya, Padam', cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
                 localStorage.removeItem('BDR_' + selectedDate);
                 document.getElementById('mingguDate').value = '';
-                const tbody = document.getElementById('tbodyTugas');
-                tbody.innerHTML = ''; bilCount = 0; tambahBaris();
+                document.getElementById('tbodyTugas').innerHTML = ''; 
+                tambahBaris();
                 updateDropdown();
                 Swal.fire({ icon: 'success', title: 'Dipadam!', text: 'Rekod telah berjaya dipadam.', confirmButtonColor: '#10b981' });
             }
         });
     }
 
+    // FUNGSI KOSONGKAN BORANG
     function kosongkanBorang() {
         Swal.fire({
-            title: 'Kosongkan Borang?', text: "Tarikh dan senarai tugas akan dikosongkan.", icon: 'question',
-            showCancelButton: true, confirmButtonColor: '#f59e0b', cancelButtonColor: '#64748b', confirmButtonText: 'Ya', cancelButtonText: 'Batal'
+            title: 'Kosongkan Borang?', text: "Tarikh dan senarai tugas akan dikosongkan. Maklumat diri akan dikekalkan.", icon: 'question',
+            showCancelButton: true, confirmButtonColor: '#f59e0b', cancelButtonColor: '#64748b', confirmButtonText: 'Ya, Teruskan', cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
-                document.getElementById('mingguDate').value = ''; document.getElementById('historyDropdown').value = '';
-                const tbody = document.getElementById('tbodyTugas');
-                tbody.innerHTML = ''; bilCount = 0; tambahBaris();
+                document.getElementById('mingguDate').value = ''; 
+                document.getElementById('historyDropdown').value = '';
+                document.getElementById('tbodyTugas').innerHTML = ''; 
+                tambahBaris();
             }
         });
     }
 
+    // FUNGSI CETAK (UBAH NAMA FAIL PDF)
     function printReport() {
         const dateKey = document.getElementById('mingguDate').value.trim();
         const originalTitle = document.title;

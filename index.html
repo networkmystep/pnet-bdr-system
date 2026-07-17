@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Laporan BDR</title>
+    <style>
+        /* Screen Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .login-screen {
+            text-align: center;
+            padding: 50px 20px;
+        }
+        .login-screen input {
+            padding: 10px;
+            width: 80%;
+            max-width: 300px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .btn {
+            padding: 10px 20px;
+            background-color: #0366d6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+        }
+        .btn:hover { background-color: #024ea4; }
+        .btn-success { background-color: #28a745; }
+        .btn-success:hover { background-color: #218838; }
+        
+        .report-screen { display: none; }
+        
+        /* Control Panel */
+        .control-panel {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .control-panel select { padding: 8px; border-radius: 4px; }
+        
+        /* Form Inputs */
+        .input-group { margin-bottom: 10px; display: flex; align-items: baseline;}
+        .input-group label { font-weight: bold; margin-right: 10px; min-width: 150px; }
+        .input-group input { flex-grow: 1; padding: 5px; border: 1px solid #ccc; font-family: inherit; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid black; padding: 10px; vertical-align: top; }
+        th { background-color: #f0f0f0; }
+        textarea { width: 100%; height: 180px; padding: 5px; border: 1px solid #ccc; font-family: inherit; resize: vertical; }
+        
+        .header-text { text-align: center; font-weight: bold; margin-bottom: 30px; line-height: 1.5;}
+        .signature-section { margin-top: 50px; }
+
+        /* Print Styles */
+        @media print {
+            body { background-color: white; padding: 0; }
+            .container { box-shadow: none; padding: 0; max-width: 100%; }
+            .no-print { display: none !important; }
+            
+            input, textarea { 
+                border: none; 
+                background: transparent; 
+                padding: 0; 
+                resize: none; 
+                overflow: hidden;
+            }
+            .input-group label { min-width: auto; margin-right: 5px;}
+            th { background-color: transparent !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-screen no-print">
+        <h2>Log Masuk Sistem BDR</h2>
+        <p>Sila masukkan emel anda untuk tujuan rekod.</p>
+        <input type="email" id="userEmail" placeholder="emel@kkm.gov.my" required>
+        <br>
+        <button class="btn" onclick="login()">Log Masuk & Buka Borang</button>
+    </div>
+
+    <!-- Report Template Screen -->
+    <div id="reportScreen" class="report-screen">
+        
+        <!-- Control Panel (Hidden during Print) -->
+        <div class="control-panel no-print">
+            <div>
+                <strong>Rekod Lepas:</strong>
+                <select id="historyDropdown" onchange="loadRecord()">
+                    <option value="">-- Pilih Minggu --</option>
+                </select>
+            </div>
+            <div>
+                <button class="btn btn-success" onclick="saveRecord()">Simpan Rekod</button>
+                <button class="btn" onclick="printReport()">Cetak / Simpan PDF</button>
+            </div>
+        </div>
+
+        <div class="header-text">
+            LAMPIRAN B<br>
+            LAPORAN TUGAS MINGGUAN<br>
+            BAGI PEGAWAI SEMASA TEMPOH BEKERJA DARI RUMAH<br>
+            KEMENTERIAN KESIHATAN MALAYSIA
+        </div>
+
+        <div class="input-group">
+            <label>MULAI:</label>
+            <input type="text" id="mingguDate" value="21 April 2026 DAN 23 April 2026" placeholder="Cth: 21 April 2026 DAN 23 April 2026">
+        </div>
+        <div class="input-group">
+            <label>BAHAGIAN:</label>
+            <input type="text" id="bahagian" value="Bahagian Pengurusan Maklumat">
+        </div>
+        <div class="input-group">
+            <label>NAMA:</label>
+            <input type="text" id="nama" value="AHMAD FAEZ BIN ROSLEE">
+        </div>
+        <div class="input-group">
+            <label>JAWATAN & GRED:</label>
+            <input type="text" id="jawatan" value="Personel MyStep">
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 5%;">BIL.</th>
+                    <th style="width: 45%;">SENARAI TUGAS</th>
+                    <th style="width: 50%;">OUTPUT</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="text-align: center;">1</td>
+                    <td>
+                        <textarea id="tugas">Menghadiri Sesi Coaching serta Peperiksaan Amali bagi pensijilan Cisco Certified Network Associate (CCNA) 2026 secara dalam talian bermula dari 20 April hingga 24 April 2026. Sesi ini melibatkan sesi pembelajaran intensif, latihan makmal, dan persediaan teknikal bagi menduduki ujian kelayakan yang ditetapkan.</textarea>
+                    </td>
+                    <td>
+                        <textarea id="output">Selesai dilaksanakan sepenuhnya bagi tempoh lima hari.
+Selesai dilaksanakan dengan pencapaian prestasi seperti berikut:
+100% bagi Peperiksaan Kemahiran (Skills Exams).
+92% bagi Peperiksaan Akhir (Final Exam).
+90.5% bagi purata Peperiksaan Kumpulan Modul (Module Group Exams).
+93.8% Gred Keseluruhan Kursus (Class Grades).</textarea>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="signature-section">
+            <p>DISAHKAN OLEH:</p>
+            <br><br>
+            <p>………………………………………………….<br>
+            Setiausaha/Pengarah Bahagian</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 1. Handle Login
+    function login() {
+        const emailInput = document.getElementById('userEmail').value;
+        if (emailInput.includes('@')) {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('reportScreen').style.display = 'block';
+            updateDropdown();
+        } else {
+            alert('Sila masukkan emel yang sah.');
+        }
+    }
+
+    // 2. Save the current week's record to browser memory
+    function saveRecord() {
+        const dateKey = document.getElementById('mingguDate').value.trim();
+        if (!dateKey) {
+            alert("Sila isikan ruangan 'MULAI' terlebih dahulu sebagai rujukan minggu.");
+            return;
+        }
+
+        const reportData = {
+            bahagian: document.getElementById('bahagian').value,
+            nama: document.getElementById('nama').value,
+            jawatan: document.getElementById('jawatan').value,
+            tugas: document.getElementById('tugas').value,
+            output: document.getElementById('output').value
+        };
+
+        localStorage.setItem('BDR_' + dateKey, JSON.stringify(reportData));
+        alert("Rekod untuk minggu '" + dateKey + "' berjaya disimpan di dalam browser!");
+        updateDropdown();
+        
+        // Select the newly saved item in the dropdown
+        document.getElementById('historyDropdown').value = dateKey;
+    }
+
+    // 3. Update the dropdown list with saved records
+    function updateDropdown() {
+        const dropdown = document.getElementById('historyDropdown');
+        // Clear existing options except the first one
+        dropdown.innerHTML = '<option value="">-- Pilih Minggu --</option>';
+        
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key.startsWith('BDR_')) {
+                const dateKey = key.replace('BDR_', '');
+                const option = document.createElement('option');
+                option.value = dateKey;
+                option.text = dateKey;
+                dropdown.appendChild(option);
+            }
+        }
+    }
+
+    // 4. Load a selected record into the form
+    function loadRecord() {
+        const selectedDate = document.getElementById('historyDropdown').value;
+        if (!selectedDate) return; // Do nothing if default option is selected
+
+        const savedData = JSON.parse(localStorage.getItem('BDR_' + selectedDate));
+        if (savedData) {
+            document.getElementById('mingguDate').value = selectedDate;
+            document.getElementById('bahagian').value = savedData.bahagian;
+            document.getElementById('nama').value = savedData.nama;
+            document.getElementById('jawatan').value = savedData.jawatan;
+            document.getElementById('tugas').value = savedData.tugas;
+            document.getElementById('output').value = savedData.output;
+        }
+    }
+
+    // 5. Smart Print - Changes document title so PDF saves with a clear name
+    function printReport() {
+        const dateKey = document.getElementById('mingguDate').value.trim();
+        const originalTitle = document.title;
+        
+        if(dateKey) {
+            // Replace spaces and special characters with underscores for a clean filename
+            const safeName = dateKey.replace(/[^a-zA-Z0-9]/g, '_');
+            document.title = "Laporan_BDR_" + safeName;
+        }
+        
+        window.print();
+        
+        // Revert title back to normal after print dialog closes
+        document.title = originalTitle;
+    }
+</script>
+
+</body>
+</html>

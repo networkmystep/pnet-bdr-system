@@ -4,89 +4,196 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Laporan BDR</title>
+    
+    <!-- Google Fonts untuk rupa yang lebih moden -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- SweetAlert2 untuk Popup yang Premium -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <style>
-        /* Screen Styles */
+        /* --- STYLES UNTUK SKRIN (MODEN & PREMIUM) --- */
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #10b981;
+            --success-hover: #059669;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --warning: #f59e0b;
+            --warning-hover: #d97706;
+            --bg-color: #f8fafc;
+            --surface: #ffffff;
+            --border: #e2e8f0;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             margin: 0;
-            padding: 20px;
+            padding: 40px 20px;
+            line-height: 1.6;
         }
+        
         .container {
-            max-width: 800px;
+            max-width: 850px;
             margin: 0 auto;
-            background: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background: var(--surface);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
         }
+
         .login-screen {
             text-align: center;
-            padding: 50px 20px;
+            padding: 60px 20px;
+        }
+        .login-screen h2 {
+            color: var(--primary);
+            margin-bottom: 10px;
         }
         .login-screen input {
-            padding: 10px;
-            width: 80%;
-            max-width: 300px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            padding: 12px 15px;
+            width: 100%;
+            max-width: 320px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s ease;
         }
+        .login-screen input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
         .btn {
             padding: 10px 20px;
-            background-color: #0366d6;
+            background-color: var(--primary);
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 14px;
-            margin: 5px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            margin: 4px;
         }
-        .btn:hover { background-color: #024ea4; }
-        .btn-success { background-color: #28a745; }
-        .btn-success:hover { background-color: #218838; }
-        .btn-secondary { background-color: #6c757d; padding: 5px 15px; margin-top: 10px;}
-        .btn-secondary:hover { background-color: #5a6268; }
-        .btn-warning { background-color: #ffc107; color: #212529; }
-        .btn-warning:hover { background-color: #e0a800; }
-        .btn-danger { background-color: #dc3545; }
-        .btn-danger:hover { background-color: #c82333; }
+        .btn:hover { background-color: var(--primary-hover); transform: translateY(-1px); }
+        .btn:active { transform: translateY(0); }
+        .btn-success { background-color: var(--success); }
+        .btn-success:hover { background-color: var(--success-hover); }
+        .btn-warning { background-color: var(--warning); color: white;}
+        .btn-warning:hover { background-color: var(--warning-hover); }
+        .btn-danger { background-color: var(--danger); }
+        .btn-danger:hover { background-color: var(--danger-hover); }
+        .btn-secondary { background-color: var(--text-muted); padding: 8px 16px; margin-top: 15px;}
+        .btn-secondary:hover { background-color: #475569; }
         
         .report-screen { display: none; }
         
-        /* Control Panel */
+        /* Control Panel Premium */
         .control-panel {
-            background-color: #e9ecef;
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 20px;
+            background-color: #f1f5f9;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            margin-bottom: 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
+            gap: 15px;
         }
-        .control-panel select { padding: 8px; border-radius: 4px; margin-right: 5px;}
+        .control-panel select { 
+            padding: 10px; 
+            border-radius: 6px; 
+            border: 1px solid var(--border);
+            font-family: inherit;
+            margin-right: 10px;
+            min-width: 180px;
+        }
+        .control-panel select:focus { outline: none; border-color: var(--primary); }
         
         /* Form Inputs */
-        .input-group { margin-bottom: 10px; display: flex; align-items: baseline;}
-        .input-group label { font-weight: bold; margin-right: 10px; min-width: 150px; }
-        .input-group input { flex-grow: 1; padding: 5px; border: 1px solid #ccc; font-family: inherit; }
+        .header-text { 
+            text-align: center; 
+            font-weight: 700; 
+            margin-bottom: 40px; 
+            line-height: 1.6;
+            color: #1e293b;
+        }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid black; padding: 10px; vertical-align: top; }
-        th { background-color: #f0f0f0; }
-        textarea { width: 100%; height: 120px; padding: 5px; border: 1px solid #ccc; font-family: inherit; resize: vertical; box-sizing: border-box;}
+        .input-group { 
+            margin-bottom: 15px; 
+            display: flex; 
+            align-items: center;
+        }
+        .input-group label { 
+            font-weight: 600; 
+            margin-right: 15px; 
+            min-width: 150px; 
+            color: var(--text-main);
+        }
+        .input-group input { 
+            flex-grow: 1; 
+            padding: 10px 12px; 
+            border: 1px solid var(--border); 
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .input-group input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
         
-        .header-text { text-align: center; font-weight: bold; margin-bottom: 30px; line-height: 1.5;}
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 25px; 
+            border-radius: 8px;
+            overflow: hidden; /* For rounded corners on table */
+        }
+        th, td { 
+            border: 1px solid var(--border); 
+            padding: 12px; 
+            vertical-align: top; 
+        }
+        th { 
+            background-color: #f8fafc; 
+            font-weight: 600;
+            color: var(--text-main);
+        }
+        textarea { 
+            width: 100%; 
+            height: 100px; 
+            padding: 10px; 
+            border: 1px solid var(--border); 
+            border-radius: 6px;
+            font-family: inherit; 
+            font-size: 14px;
+            resize: vertical; 
+            box-sizing: border-box;
+            background-color: #fcfcfc;
+        }
         
-        /* TANDATANGAN DI TENGAH */
-        .signature-section { margin-top: 60px; text-align: center; }
+        .signature-section { margin-top: 60px; text-align: center; font-weight: 500;}
 
-        /* Print Styles */
+        /* --- STYLES UNTUK CETAK (PRINT) - KEKAL RASMI & BERSIH --- */
         @media print {
             @page { margin: 0; } 
-            body { background-color: white; padding: 2.5cm !important; }
+            body { 
+                background-color: white; 
+                padding: 2.5cm !important; 
+                font-family: Arial, sans-serif; /* Guna font rasmi bila print */
+                color: black;
+            }
             .container { box-shadow: none; padding: 0; max-width: 100%; }
             .no-print { display: none !important; }
             
@@ -96,11 +203,12 @@
                 padding: 0; 
                 resize: none; 
                 overflow: hidden;
+                box-shadow: none !important;
+                color: black;
             }
-            input::placeholder, textarea::placeholder {
-                color: transparent;
-            }
-            .input-group label { min-width: auto; margin-right: 5px;}
+            input::placeholder, textarea::placeholder { color: transparent; }
+            .input-group label { min-width: auto; margin-right: 10px;}
+            th, td { border: 1px solid black; }
             th { background-color: transparent !important; }
         }
     </style>
@@ -110,11 +218,11 @@
 <div class="container">
     <!-- Login Screen -->
     <div id="loginScreen" class="login-screen no-print">
-        <h2>Log Masuk Sistem BDR</h2>
-        <p>Sila masukkan emel anda untuk tujuan rekod.</p>
+        <h2>Sistem Laporan BDR</h2>
+        <p style="color: #64748b; margin-bottom: 30px;">Sila log masuk menggunakan emel rasmi anda.</p>
         <input type="email" id="userEmail" placeholder="emel@kkm.gov.my" required>
         <br>
-        <button class="btn" onclick="login()">Log Masuk & Buka Borang</button>
+        <button class="btn" onclick="login()">Log Masuk Semasa</button>
     </div>
 
     <!-- Report Template Screen -->
@@ -122,20 +230,20 @@
         
         <!-- Control Panel -->
         <div class="control-panel no-print">
-            <div>
-                <strong>Rekod Lepas:</strong>
+            <div style="display: flex; align-items: center;">
                 <select id="historyDropdown" onchange="loadRecord()">
-                    <option value="">-- Pilih Minggu --</option>
+                    <option value="">-- Pilih Rekod Lepas --</option>
                 </select>
-                <button class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;" onclick="padamRekod()">Padam Rekod</button>
+                <button class="btn btn-danger" style="padding: 10px 15px;" onclick="padamRekod()">Padam</button>
             </div>
             <div>
-                <button class="btn btn-warning" onclick="kosongkanBorang()">Kosongkan Borang</button>
-                <button class="btn btn-success" onclick="saveRecord()">Simpan</button>
+                <button class="btn btn-warning" onclick="kosongkanBorang()">Kosongkan</button>
+                <button class="btn btn-success" onclick="saveRecord()">Simpan Rekod</button>
                 <button class="btn" onclick="printReport()">Cetak PDF</button>
             </div>
         </div>
 
+        <!-- Document Header -->
         <div class="header-text">
             LAMPIRAN B<br>
             LAPORAN TUGAS MINGGUAN<br>
@@ -163,25 +271,25 @@
         <table>
             <thead>
                 <tr>
-                    <th style="width: 5%;">BIL.</th>
+                    <th style="width: 5%; text-align: center;">BIL.</th>
                     <th style="width: 45%;">SENARAI TUGAS</th>
                     <th style="width: 50%;">OUTPUT</th>
                 </tr>
             </thead>
             <tbody id="tbodyTugas">
                 <tr>
-                    <td class="row-number" style="text-align: center;">1</td>
+                    <td class="row-number" style="text-align: center; padding-top: 15px;">1</td>
                     <td>
-                        <textarea class="tugas-text" placeholder="Sila masukkan senarai tugas anda di sini..."></textarea>
+                        <textarea class="tugas-text" placeholder="Masukkan ringkasan tugas..."></textarea>
                     </td>
                     <td>
-                        <textarea class="output-text" placeholder="Sila masukkan output bagi tugas tersebut..."></textarea>
+                        <textarea class="output-text" placeholder="Masukkan hasil / output tugas..."></textarea>
                     </td>
                 </tr>
             </tbody>
         </table>
         
-        <button class="btn btn-secondary no-print" onclick="tambahBaris()">+ Tambah Tugas</button>
+        <button class="btn btn-secondary no-print" onclick="tambahBaris()">+ Tambah Tugas Baru</button>
 
         <div class="signature-section">
             <p>DISAHKAN OLEH:</p>
@@ -195,6 +303,7 @@
 <script>
     let bilCount = 1;
 
+    // Fungsi Login menggunakan SweetAlert2
     function login() {
         const emailInput = document.getElementById('userEmail').value;
         if (emailInput.includes('@')) {
@@ -202,7 +311,12 @@
             document.getElementById('reportScreen').style.display = 'block';
             updateDropdown();
         } else {
-            alert('Sila masukkan emel yang sah.');
+            Swal.fire({
+                icon: 'error',
+                title: 'Akses Ditolak',
+                text: 'Sila masukkan format emel yang sah (mesti mempunyai @).',
+                confirmButtonColor: '#2563eb'
+            });
         }
     }
 
@@ -212,12 +326,12 @@
         const tr = document.createElement('tr');
         
         tr.innerHTML = `
-            <td class="row-number" style="text-align: center;">${bilCount}</td>
+            <td class="row-number" style="text-align: center; padding-top: 15px;">${bilCount}</td>
             <td>
-                <textarea class="tugas-text" placeholder="Sila masukkan senarai tugas anda di sini...">${tugasValue}</textarea>
+                <textarea class="tugas-text" placeholder="Masukkan ringkasan tugas...">${tugasValue}</textarea>
             </td>
             <td>
-                <textarea class="output-text" placeholder="Sila masukkan output bagi tugas tersebut...">${outputValue}</textarea>
+                <textarea class="output-text" placeholder="Masukkan hasil / output tugas...">${outputValue}</textarea>
             </td>
         `;
         tbody.appendChild(tr);
@@ -226,7 +340,12 @@
     function saveRecord() {
         const dateKey = document.getElementById('mingguDate').value.trim();
         if (!dateKey) {
-            alert("Sila isikan ruangan 'MULAI' terlebih dahulu sebagai rujukan minggu sebelum menyimpan.");
+            Swal.fire({
+                icon: 'warning',
+                title: 'Maklumat Tidak Lengkap',
+                text: 'Sila isikan ruangan "MULAI" terlebih dahulu sebagai rujukan minggu sebelum menyimpan.',
+                confirmButtonColor: '#f59e0b'
+            });
             return;
         }
 
@@ -251,14 +370,24 @@
         };
 
         localStorage.setItem('BDR_' + dateKey, JSON.stringify(reportData));
-        alert("Rekod untuk minggu '" + dateKey + "' berjaya disimpan!");
+        
         updateDropdown();
         document.getElementById('historyDropdown').value = dateKey;
+
+        // Popup Berjaya
+        Swal.fire({
+            icon: 'success',
+            title: 'Berjaya Disimpan!',
+            text: `Rekod laporan untuk minggu '${dateKey}' telah disimpan.`,
+            confirmButtonColor: '#10b981',
+            timer: 2000,
+            showConfirmButton: false
+        });
     }
 
     function updateDropdown() {
         const dropdown = document.getElementById('historyDropdown');
-        dropdown.innerHTML = '<option value="">-- Pilih Minggu --</option>';
+        dropdown.innerHTML = '<option value="">-- Pilih Rekod Lepas --</option>';
         
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
@@ -297,45 +426,73 @@
         }
     }
 
-    // Fungsi Baharu: Padam Rekod dengan Alert Amaran Berperingkat
+    // Fungsi Padam menggunakan SweetAlert2
     function padamRekod() {
         const selectedDate = document.getElementById('historyDropdown').value;
         
         if (!selectedDate) {
-            alert("Sila pilih minggu dari 'Rekod Lepas' terlebih dahulu sebelum klik padam.");
+            Swal.fire({
+                icon: 'info',
+                title: 'Pilih Rekod',
+                text: "Sila pilih minggu dari 'Pilih Rekod Lepas' terlebih dahulu.",
+                confirmButtonColor: '#3085d6'
+            });
             return;
         }
 
-        // Amaran Peringkat 1
-        if (confirm(`AMARAN: Adakah anda pasti mahu MEMADAM rekod minggu '${selectedDate}'?`)) {
-            // Amaran Peringkat 2 (Pengesahan Muktamad)
-            if (confirm("Tindakan ini akan memadam data kekal daripada pelayar web anda. Anda betul-betul pasti?")) {
+        Swal.fire({
+            title: 'Adakah anda pasti?',
+            text: `Data untuk minggu '${selectedDate}' akan dipadam secara kekal.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Ya, Padam',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
                 localStorage.removeItem('BDR_' + selectedDate);
-                alert(`Rekod minggu '${selectedDate}' telah berjaya dipadam.`);
                 
-                // Set semula borang kepada kosong selepas padam
                 document.getElementById('mingguDate').value = '';
                 const tbody = document.getElementById('tbodyTugas');
                 tbody.innerHTML = '';
                 bilCount = 0;
                 tambahBaris();
                 
-                // Kemaskini semula senarai dropdown
                 updateDropdown();
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Dipadam!',
+                    text: 'Rekod telah berjaya dipadam.',
+                    confirmButtonColor: '#10b981'
+                });
             }
-        }
+        });
     }
 
+    // Fungsi Kosongkan menggunakan SweetAlert2
     function kosongkanBorang() {
-        if(confirm("Borang akan dikosongkan untuk minggu baharu. Teruskan?")) {
-            document.getElementById('mingguDate').value = '';
-            document.getElementById('historyDropdown').value = '';
-            
-            const tbody = document.getElementById('tbodyTugas');
-            tbody.innerHTML = '';
-            bilCount = 0;
-            tambahBaris();
-        }
+        Swal.fire({
+            title: 'Kosongkan Borang?',
+            text: "Tarikh dan senarai tugas akan dikosongkan. Maklumat peribadi dikekalkan.",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#f59e0b',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Ya, Kosongkan',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('mingguDate').value = '';
+                document.getElementById('historyDropdown').value = '';
+                
+                const tbody = document.getElementById('tbodyTugas');
+                tbody.innerHTML = '';
+                bilCount = 0;
+                tambahBaris();
+            }
+        });
     }
 
     function printReport() {

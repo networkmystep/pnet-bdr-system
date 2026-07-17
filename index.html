@@ -24,7 +24,7 @@
             --surface: #ffffff;
             --border: #cbd5e1;
             --text-main: #0f172a;
-            --table-header: #eff6ff; /* Warna biru lembut untuk header jadual */
+            --table-header: #eff6ff;
         }
 
         body {
@@ -46,8 +46,24 @@
             transition: all 0.3s ease;
         }
 
+        /* --- Header Styles --- */
+        .lampiran-text {
+            text-align: right;
+            font-weight: 700;
+            font-size: 16px;
+            color: #1e293b;
+            margin-bottom: 25px;
+        }
+        .header-text { 
+            text-align: center; 
+            font-weight: 700; 
+            margin-bottom: 40px; 
+            line-height: 1.6; 
+            color: #1e293b; 
+            font-size: 16px;
+        }
+
         /* --- Input Styles --- */
-        .header-text { text-align: center; font-weight: 700; margin-bottom: 40px; line-height: 1.6; color: #1e293b; font-size: 16px;}
         .input-group { margin-bottom: 18px; display: flex; align-items: center; }
         .input-group label { font-weight: 600; margin-right: 15px; min-width: 150px; color: #334155; }
         .input-group input { 
@@ -67,7 +83,7 @@
         th:last-child, td:last-child { border-right: none; }
         tr:last-child td { border-bottom: none; }
         
-        th { background-color: var(--table-header); font-weight: 700; color: #1e3a8a; text-align: left; }
+        th { background-color: var(--table-header); font-weight: 700; color: #1e3a8a; text-align: center; }
         
         textarea { 
             width: 100%; height: 110px; padding: 12px; border: 1px solid #e2e8f0; 
@@ -99,7 +115,6 @@
         .btn-warning { background-color: var(--warning); color: white;}
         .btn-secondary { background-color: #64748b; padding: 10px 20px; margin-top: 20px;}
         
-        /* Butang Padam Kecil dalam Jadual */
         .btn-delete-row {
             background-color: #fee2e2; color: #ef4444; border: none; border-radius: 6px;
             width: 32px; height: 32px; font-size: 14px; cursor: pointer;
@@ -139,6 +154,10 @@
             input::placeholder, textarea::placeholder { color: transparent; }
             .input-group label { min-width: auto; margin-right: 10px;}
             
+            /* Tetapan Font untuk Tajuk semasa Print */
+            .lampiran-text { color: black; }
+            .header-text { color: black; }
+
             table { border: 1px solid black; border-radius: 0; border-collapse: collapse; margin-top: 15px; }
             th, td { border: 1px solid black; padding: 10px; }
             th { background-color: transparent !important; color: black; font-weight: bold; }
@@ -176,8 +195,12 @@
             </div>
         </div>
 
+        <!-- PERUBAHAN DI SINI: LAMPIRAN B KINI BERADA DI KANAN -->
+        <div class="lampiran-text">
+            LAMPIRAN B
+        </div>
+        
         <div class="header-text">
-            LAMPIRAN B<br>
             LAPORAN TUGAS MINGGUAN<br>
             BAGI PEGAWAI SEMASA TEMPOH BEKERJA DARI RUMAH<br>
             KEMENTERIAN KESIHATAN MALAYSIA
@@ -203,10 +226,10 @@
         <table>
             <thead>
                 <tr>
-                    <th style="width: 5%; text-align: center;">BIL.</th>
+                    <th style="width: 5%;">BIL.</th>
                     <th style="width: 45%;">SENARAI TUGAS</th>
                     <th style="width: 45%;">OUTPUT</th>
-                    <th style="width: 5%; text-align: center;" class="no-print col-tindakan">TINDAKAN</th>
+                    <th style="width: 5%;" class="no-print col-tindakan">TINDAKAN</th>
                 </tr>
             </thead>
             <tbody id="tbodyTugas">
@@ -232,7 +255,6 @@
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('reportScreen').style.display = 'block';
             updateDropdown();
-            // Masukkan baris pertama jika kosong
             if(document.getElementById('tbodyTugas').children.length === 0) {
                 tambahBaris();
             }
@@ -241,7 +263,6 @@
         }
     }
 
-    // FUNGSI TAMBAH BARIS DENGAN ANIMASI
     function tambahBaris(tugasValue = '', outputValue = '') {
         const tbody = document.getElementById('tbodyTugas');
         const tr = document.createElement('tr');
@@ -259,27 +280,21 @@
         kemaskiniNomborBilangan();
     }
 
-    // FUNGSI PADAM BARIS TERTENTU DENGAN ANIMASI & PENGIRAAN SEMULA
     function padamBaris(btnElement) {
         const row = btnElement.closest('tr');
-        
-        // Animasi hilang
         row.style.transition = 'all 0.3s ease';
         row.style.opacity = '0';
         row.style.transform = 'translateX(-30px)';
         
         setTimeout(() => {
             row.remove();
-            kemaskiniNomborBilangan(); // Kira semula nombor 1, 2, 3...
-            
-            // Pastikan sentiasa ada sekurang-kurangnya 1 baris tinggal
+            kemaskiniNomborBilangan(); 
             if (document.getElementById('tbodyTugas').children.length === 0) {
                 tambahBaris();
             }
         }, 300);
     }
 
-    // FUNGSI KIRA SEMULA NOMBOR (BIL.)
     function kemaskiniNomborBilangan() {
         const rows = document.querySelectorAll('#tbodyTugas tr');
         rows.forEach((row, index) => {
@@ -287,7 +302,6 @@
         });
     }
 
-    // FUNGSI SIMPAN
     function saveRecord() {
         const dateKey = document.getElementById('mingguDate').value.trim();
         if (!dateKey) {
@@ -313,7 +327,6 @@
         Swal.fire({ icon: 'success', title: 'Berjaya Disimpan!', text: `Rekod untuk '${dateKey}' telah disimpan.`, confirmButtonColor: '#10b981', timer: 2000, showConfirmButton: false });
     }
 
-    // FUNGSI DROPDOWN
     function updateDropdown() {
         const dropdown = document.getElementById('historyDropdown');
         dropdown.innerHTML = '<option value="">-- Pilih Rekod Lepas --</option>';
@@ -328,7 +341,6 @@
         }
     }
 
-    // FUNGSI LOAD
     function loadRecord() {
         const selectedDate = document.getElementById('historyDropdown').value;
         if (!selectedDate) return; 
@@ -348,7 +360,6 @@
         }
     }
 
-    // FUNGSI PADAM REKOD LAMA DI LOCALSTORAGE
     function padamRekodLama() {
         const selectedDate = document.getElementById('historyDropdown').value;
         if (!selectedDate) {
@@ -371,7 +382,6 @@
         });
     }
 
-    // FUNGSI KOSONGKAN BORANG
     function kosongkanBorang() {
         Swal.fire({
             title: 'Kosongkan Borang?', text: "Tarikh dan senarai tugas akan dikosongkan. Maklumat diri akan dikekalkan.", icon: 'question',
@@ -386,7 +396,6 @@
         });
     }
 
-    // FUNGSI CETAK (UBAH NAMA FAIL PDF)
     function printReport() {
         const dateKey = document.getElementById('mingguDate').value.trim();
         const originalTitle = document.title;

@@ -48,6 +48,8 @@
         .btn-success:hover { background-color: #218838; }
         .btn-secondary { background-color: #6c757d; padding: 5px 15px; margin-top: 10px;}
         .btn-secondary:hover { background-color: #5a6268; }
+        .btn-warning { background-color: #ffc107; color: #212529; }
+        .btn-warning:hover { background-color: #e0a800; }
         .btn-danger { background-color: #dc3545; }
         .btn-danger:hover { background-color: #c82333; }
         
@@ -62,8 +64,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
         }
-        .control-panel select { padding: 8px; border-radius: 4px; }
+        .control-panel select { padding: 8px; border-radius: 4px; margin-right: 5px;}
         
         /* Form Inputs */
         .input-group { margin-bottom: 10px; display: flex; align-items: baseline;}
@@ -82,10 +85,7 @@
 
         /* Print Styles */
         @media print {
-            /* BUANG TIMESTAMP DAN LINK URL DI ATAS/BAWAH */
             @page { margin: 0; } 
-            
-            /* Tetapkan margin supaya isi kandungan tidak terlalu rapat ke tepi kertas */
             body { background-color: white; padding: 2.5cm !important; }
             .container { box-shadow: none; padding: 0; max-width: 100%; }
             .no-print { display: none !important; }
@@ -127,9 +127,10 @@
                 <select id="historyDropdown" onchange="loadRecord()">
                     <option value="">-- Pilih Minggu --</option>
                 </select>
+                <button class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;" onclick="padamRekod()">Padam Rekod</button>
             </div>
             <div>
-                <button class="btn btn-danger" onclick="kosongkanBorang()">Kosongkan Borang</button>
+                <button class="btn btn-warning" onclick="kosongkanBorang()">Kosongkan Borang</button>
                 <button class="btn btn-success" onclick="saveRecord()">Simpan</button>
                 <button class="btn" onclick="printReport()">Cetak PDF</button>
             </div>
@@ -296,21 +297,44 @@
         }
     }
 
-    // Fungsi baharu untuk mengosongkan borang (Reset)
+    // Fungsi Baharu: Padam Rekod dengan Alert Amaran Berperingkat
+    function padamRekod() {
+        const selectedDate = document.getElementById('historyDropdown').value;
+        
+        if (!selectedDate) {
+            alert("Sila pilih minggu dari 'Rekod Lepas' terlebih dahulu sebelum klik padam.");
+            return;
+        }
+
+        // Amaran Peringkat 1
+        if (confirm(`AMARAN: Adakah anda pasti mahu MEMADAM rekod minggu '${selectedDate}'?`)) {
+            // Amaran Peringkat 2 (Pengesahan Muktamad)
+            if (confirm("Tindakan ini akan memadam data kekal daripada pelayar web anda. Anda betul-betul pasti?")) {
+                localStorage.removeItem('BDR_' + selectedDate);
+                alert(`Rekod minggu '${selectedDate}' telah berjaya dipadam.`);
+                
+                // Set semula borang kepada kosong selepas padam
+                document.getElementById('mingguDate').value = '';
+                const tbody = document.getElementById('tbodyTugas');
+                tbody.innerHTML = '';
+                bilCount = 0;
+                tambahBaris();
+                
+                // Kemaskini semula senarai dropdown
+                updateDropdown();
+            }
+        }
+    }
+
     function kosongkanBorang() {
         if(confirm("Borang akan dikosongkan untuk minggu baharu. Teruskan?")) {
-            // Kita padam Tarikh dan dropdown
             document.getElementById('mingguDate').value = '';
             document.getElementById('historyDropdown').value = '';
             
-            // Kita reset table jadikan 1 baris kosong semula
             const tbody = document.getElementById('tbodyTugas');
             tbody.innerHTML = '';
             bilCount = 0;
             tambahBaris();
-            
-            // Nota: Input Nama, Bahagian dan Jawatan TIDAK dipadam. 
-            // Sengaja ditinggalkan supaya pengguna tak perlu ulang menaip setiap kali buat laporan baharu.
         }
     }
 

@@ -142,16 +142,15 @@
 
         /* --- STYLES UNTUK CETAK (PRINT) - KEMBALI RASMI & BERSIH --- */
         @media print {
-            /* 1. Tetapkan saiz A4 dan buang margin kertas sepenuhnya untuk padam header/footer */
+            /* 1. Tetapkan saiz A4 dan set margin kertas supaya setiap page ada gap */
             @page { 
                 size: A4; 
-                margin: 0; 
+                margin: 2cm; 
             } 
             
-            /* 2. Gantikan margin tadi dengan padding pada body supaya isi kandungan nampak kemas */
+            /* 2. Padding dibuang dari body. Hanya guna box-sizing, warna dan font sahaja */
             body { 
                 background-color: white; 
-                padding: 2cm !important; 
                 font-family: Arial, sans-serif; 
                 color: black; 
                 box-sizing: border-box;

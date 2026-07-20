@@ -145,10 +145,10 @@
             /* 1. Tetapkan saiz A4 dan set margin kertas supaya setiap page ada gap */
             @page { 
                 size: A4; 
-                margin: 2cm; 
+                margin: 2cm; /* Margin 2cm di sini penting supaya page 2 tak rapat ke atas */
             } 
             
-            /* 2. Padding dibuang dari body. Hanya guna box-sizing, warna dan font sahaja */
+            /* 2. Tiada lagi padding/margin di body */
             body { 
                 background-color: white; 
                 font-family: Arial, sans-serif; 
@@ -406,14 +406,9 @@
     }
 
     function printReport() {
-        const dateKey = document.getElementById('mingguDate').value.trim();
+        // Kosongkan sementara tajuk dokumen sekiranya pengguna terlupa buang tanda Headers and footers
         const originalTitle = document.title;
-        if(dateKey) {
-            const safeName = dateKey.replace(/[^a-zA-Z0-9]/g, '_');
-            document.title = "Laporan_BDR_" + safeName;
-        } else {
-            document.title = "Laporan_BDR_Mingguan";
-        }
+        document.title = " "; 
         window.print();
         document.title = originalTitle;
     }

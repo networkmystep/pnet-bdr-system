@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Output Kerja Pegawai - Hari Bekerja Hibrid</title>
+    <title>Output Kerja Pegawai Hibrid</title>
     
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -188,7 +188,7 @@
 
 <div class="container">
     <div id="loginScreen" class="login-screen no-print">
-        <h2 style="color: var(--primary); font-size: 28px; margin-bottom: 10px;">Sistem Laporan BDR</h2>
+        <h2 style="color: var(--primary); font-size: 28px; margin-bottom: 10px;">Sistem Laporan Hibrid</h2>
         <p style="color: #64748b; margin-bottom: 40px; font-size: 16px;">Sila log masuk menggunakan emel rasmi anda.</p>
         <input type="email" id="userEmail" placeholder="emel@kkm.gov.my" required>
         <br>
@@ -215,15 +215,14 @@
         </div>
         
         <div class="header-text">
-            LAPORAN TUGAS MINGGUAN<br>
-            BAGI PEGAWAI SEMASA TEMPOH BEKERJA DARI RUMAH<br>
-            KEMENTERIAN KESIHATAN MALAYSIA
+            OUTPUT KERJA PEGAWAI - HARI BEKERJA HIBRID<br>
+            UNIT PENGURUSAN RANGKAIAN
         </div>
 
         <div class="input-group">
-            <label>MULAI:</label>
+            <label>TARIKH:</label>
             <!-- Input ini akan diubah menjadi kalendar oleh Flatpickr -->
-            <input type="text" id="mingguDate" placeholder="Sila pilih tarikh mula dan tamat..." style="background-color: white; cursor: pointer;">
+            <input type="text" id="mingguDate" style="background-color: white; cursor: pointer;">
         </div>
         <div class="input-group">
             <label>BAHAGIAN:</label>
@@ -266,12 +265,18 @@
 <script>
     let currentLoggedEmail = "";
 
-    // Aktifkan kalendar Flatpickr untuk input MULAI
+    // Tukarkan perkataan 'hingga' kepada 'dan' untuk bahasa Melayu di Flatpickr
+    if (flatpickr.l10ns.ms) {
+        flatpickr.l10ns.ms.rangeSeparator = " dan ";
+    }
+
+    // Aktifkan kalendar Flatpickr untuk input TARIKH
     flatpickr("#mingguDate", {
         mode: "range",           // Boleh pilih 2 tarikh (Mula & Tamat)
         dateFormat: "d F Y",     // Format contoh: 21 April 2026
         locale: "ms",            // Gunakan Bahasa Melayu
-        placeholder: "Sila pilih tarikh mula dan tamat..."
+        defaultDate: "today",    // Auto-set bermula pada tarikh HARI INI
+        placeholder: "Sila pilih 2 tarikh (Cth: 21 April dan 23 April)..."
     });
 
     function login() {
@@ -348,7 +353,7 @@
     function saveRecord() {
         const dateKey = document.getElementById('mingguDate').value.trim();
         if (!dateKey) {
-            Swal.fire({ icon: 'warning', title: 'Maklumat Tidak Lengkap', text: 'Sila pilih tarikh pada ruangan "MULAI" terlebih dahulu.', confirmButtonColor: '#f59e0b' });
+            Swal.fire({ icon: 'warning', title: 'Maklumat Tidak Lengkap', text: 'Sila pilih tarikh pada ruangan "TARIKH" terlebih dahulu.', confirmButtonColor: '#f59e0b' });
             return;
         }
 

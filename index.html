@@ -3,12 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Laporan BDR</title>
+    <title>Output Kerja Pegawai - Hari Bekerja Hibrid</title>
     
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Flatpickr (Untuk Kalendar) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <!-- Flatpickr Bahasa Melayu -->
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/ms.js"></script>
 
     <style>
         /* --- STYLES UNTUK SKRIN (PREMIUM & BERWARNA) --- */
@@ -140,15 +147,13 @@
         .report-screen { display: none; }
         .signature-section { margin-top: 70px; text-align: center; font-weight: 500; page-break-inside: avoid; }
 
-        /* --- STYLES UNTUK CETAK (PRINT) - KEMBALI RASMI & BERSIH --- */
+        /* --- STYLES UNTUK CETAK (PRINT) --- */
         @media print {
-            /* 1. Tetapkan saiz A4 dan set margin kertas supaya setiap page ada gap */
             @page { 
                 size: A4; 
-                margin: 2cm; /* Margin 2cm di sini penting supaya page 2 tak rapat ke atas */
+                margin: 2cm; 
             } 
             
-            /* 2. Tiada lagi padding/margin di body */
             body { 
                 background-color: white; 
                 font-family: Arial, sans-serif; 
@@ -217,7 +222,8 @@
 
         <div class="input-group">
             <label>MULAI:</label>
-            <input type="text" id="mingguDate" placeholder="Cth: 21 April 2026 HINGGA 23 April 2026">
+            <!-- Input ini akan diubah menjadi kalendar oleh Flatpickr -->
+            <input type="text" id="mingguDate" placeholder="Sila pilih tarikh mula dan tamat..." style="background-color: white; cursor: pointer;">
         </div>
         <div class="input-group">
             <label>BAHAGIAN:</label>
@@ -229,7 +235,7 @@
         </div>
         <div class="input-group">
             <label>JAWATAN & GRED:</label>
-            <input type="text" id="jawatan" placeholder="Contoh: Personel MyStep / F41">
+            <input type="text" id="jawatan" placeholder="Contoh: Personel MySTEP / F41">
         </div>
 
         <table>
@@ -258,11 +264,39 @@
 </div>
 
 <script>
+    let currentLoggedEmail = "";
+
+    // Aktifkan kalendar Flatpickr untuk input MULAI
+    flatpickr("#mingguDate", {
+        mode: "range",           // Boleh pilih 2 tarikh (Mula & Tamat)
+        dateFormat: "d F Y",     // Format contoh: 21 April 2026
+        locale: "ms",            // Gunakan Bahasa Melayu
+        placeholder: "Sila pilih tarikh mula dan tamat..."
+    });
+
     function login() {
-        const emailInput = document.getElementById('userEmail').value;
+        const emailInput = document.getElementById('userEmail').value.trim();
         if (emailInput.includes('@')) {
+            currentLoggedEmail = emailInput; // Simpan emel yang sedang login
+            
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('reportScreen').style.display = 'block';
+            
+            // LOGIK AUTO-FILL PROFIL
+            const savedProfile = JSON.parse(localStorage.getItem('Profil_' + currentLoggedEmail));
+            
+            if (savedProfile) {
+                // Jika profil dah pernah disimpan untuk emel ini, guna data tersebut
+                document.getElementById('bahagian').value = savedProfile.bahagian || "";
+                document.getElementById('nama').value = savedProfile.nama || "";
+                document.getElementById('jawatan').value = savedProfile.jawatan || "";
+            } else if (currentLoggedEmail === 'network_mystep@moh.gov.my') {
+                // Jika ini login pertama (tiada cache) untuk emel spesifik ini, letak default
+                document.getElementById('bahagian').value = "Bahagian Pengurusan Maklumat";
+                document.getElementById('nama').value = "Sila Masukkan Nama Anda"; 
+                document.getElementById('jawatan').value = "Personel MySTEP / F41";
+            }
+
             updateDropdown();
             if(document.getElementById('tbodyTugas').children.length === 0) {
                 tambahBaris();
@@ -314,10 +348,19 @@
     function saveRecord() {
         const dateKey = document.getElementById('mingguDate').value.trim();
         if (!dateKey) {
-            Swal.fire({ icon: 'warning', title: 'Maklumat Tidak Lengkap', text: 'Sila isikan ruangan "MULAI" terlebih dahulu.', confirmButtonColor: '#f59e0b' });
+            Swal.fire({ icon: 'warning', title: 'Maklumat Tidak Lengkap', text: 'Sila pilih tarikh pada ruangan "MULAI" terlebih dahulu.', confirmButtonColor: '#f59e0b' });
             return;
         }
 
+        const bahagian = document.getElementById('bahagian').value;
+        const nama = document.getElementById('nama').value;
+        const jawatan = document.getElementById('jawatan').value;
+
+        // 1. Simpan Profil Pengguna secara automatik (mengikut emel)
+        const profileData = { bahagian: bahagian, nama: nama, jawatan: jawatan };
+        localStorage.setItem('Profil_' + currentLoggedEmail, JSON.stringify(profileData));
+
+        // 2. Simpan Rekod Tugas
         const tugasanArray = [];
         const tugasanElements = document.getElementsByClassName('tugas-text');
         const outputElements = document.getElementsByClassName('output-text');
@@ -328,12 +371,13 @@
             }
         }
 
-        const reportData = { bahagian: document.getElementById('bahagian').value, nama: document.getElementById('nama').value, jawatan: document.getElementById('jawatan').value, tugasanList: tugasanArray };
+        const reportData = { bahagian: bahagian, nama: nama, jawatan: jawatan, tugasanList: tugasanArray };
         localStorage.setItem('BDR_' + dateKey, JSON.stringify(reportData));
+        
         updateDropdown();
         document.getElementById('historyDropdown').value = dateKey;
 
-        Swal.fire({ icon: 'success', title: 'Berjaya Disimpan!', text: `Rekod untuk '${dateKey}' telah disimpan.`, confirmButtonColor: '#10b981', timer: 2000, showConfirmButton: false });
+        Swal.fire({ icon: 'success', title: 'Berjaya Disimpan!', text: `Rekod profil dan laporan telah disimpan.`, confirmButtonColor: '#10b981', timer: 2000, showConfirmButton: false });
     }
 
     function updateDropdown() {
@@ -356,7 +400,9 @@
 
         const savedData = JSON.parse(localStorage.getItem('BDR_' + selectedDate));
         if (savedData) {
-            document.getElementById('mingguDate').value = selectedDate;
+            // Kita reset Flatpickr supaya ia papar tarikh rekod lepas
+            document.querySelector("#mingguDate")._flatpickr.setDate(selectedDate);
+            
             document.getElementById('bahagian').value = savedData.bahagian || '';
             document.getElementById('nama').value = savedData.nama || '';
             document.getElementById('jawatan').value = savedData.jawatan || '';
@@ -377,12 +423,12 @@
         }
 
         Swal.fire({
-            title: 'Padam Rekod Ini?', text: `Data untuk minggu '${selectedDate}' akan dipadam secara kekal dari peranti ini.`, icon: 'warning',
+            title: 'Padam Rekod Ini?', text: `Data untuk tarikh '${selectedDate}' akan dipadam secara kekal dari peranti ini.`, icon: 'warning',
             showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#64748b', confirmButtonText: 'Ya, Padam', cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
                 localStorage.removeItem('BDR_' + selectedDate);
-                document.getElementById('mingguDate').value = '';
+                document.querySelector("#mingguDate")._flatpickr.clear();
                 document.getElementById('tbodyTugas').innerHTML = ''; 
                 tambahBaris();
                 updateDropdown();
@@ -397,7 +443,7 @@
             showCancelButton: true, confirmButtonColor: '#f59e0b', cancelButtonColor: '#64748b', confirmButtonText: 'Ya, Teruskan', cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
-                document.getElementById('mingguDate').value = ''; 
+                document.querySelector("#mingguDate")._flatpickr.clear();
                 document.getElementById('historyDropdown').value = '';
                 document.getElementById('tbodyTugas').innerHTML = ''; 
                 tambahBaris();
@@ -406,7 +452,6 @@
     }
 
     function printReport() {
-        // Kosongkan sementara tajuk dokumen sekiranya pengguna terlupa buang tanda Headers and footers
         const originalTitle = document.title;
         document.title = " "; 
         window.print();
